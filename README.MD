@@ -16,6 +16,13 @@ optimal cooling and performance of the server.
 - Dry run mode for testing without applying changes.
 - Continuous monitoring with adjustable loop sleep time.
 
+## TODO
+
+- [x] Setting up logs
+- [ ] Create a web interface to display temperature data ??
+- [ ] Setup a Prometheus exporter??
+- [ ] Restrict this script to only works on DEBIAN and TrueNAS SCALE
+
 ## Requirements
 - Python 3.x
 - Access to IPMI on the server.

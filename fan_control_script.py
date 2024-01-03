@@ -1,8 +1,10 @@
+import logging
 import os
 import time
 from tools.ipmitool import Ipmitool
 from tools.disk_monitor import DiskMonitor
 from tools.cpu_monitor import CPUMonitor
+from logger import Logger
 
 # Fan speed control grid based on hard drive temperatures
 disk_fan_speed_grid = {
@@ -26,14 +28,15 @@ cpu_fan_speed_grid = {
     (81, 100): 100  # Temperature from 61°C to 100°C: 100%
 }
 
+# If you want to send log to discord, put the URL here !
+DISCORD_WEBHOOK_LOGS = ""
 
-# TODO: Create a web interface to display temperature data??
-# TODO: Create a Prometheus exporter??
-# TODO: This script only works on DEBIAN and TrueNAS SCALE
+logger = logging.getLogger("fan_control")
+
 
 class CaseFanController:
     def __init__(self, ipmitool, disk_monitor, cpu_monitor,
-                 disk_fan_speed_grid, cpu_fan_speed_grid , loop_sleep_time=30):
+                 disk_fan_speed_grid, cpu_fan_speed_grid, loop_sleep_time=30):
         self.ipmitool = ipmitool
         self.disk_monitor = disk_monitor
         self.cpu_monitor = cpu_monitor
@@ -57,8 +60,8 @@ class CaseFanController:
                 if current_fan_speed is None or current_fan_speed != fan_speed_percent:
                     self.current_fan_speed[zone] = temp_range, fan_speed_percent
 
-                    print(f"Set fan speed for the {zone} zone to {fan_speed_percent}% ({hex(fan_speed_percent)}) "
-                          f"(Temperature range: {temp_range[0]} → {temp_range[1]})")
+                    logger.info(f"Set fan speed for the {zone} zone to {fan_speed_percent}% ({hex(fan_speed_percent)}) "
+                                f"(Temperature range: {temp_range[0]} → {temp_range[1]})")
 
                     if not self.dry_run:
                         if zone == 'cpu':
@@ -66,7 +69,7 @@ class CaseFanController:
                         elif zone == 'peripheral':
                             self.ipmitool.set_fan_speed(1, fan_speed_percent)
                         else:
-                            print(f"The zone {zone} doesn't exist or implemented yet !")
+                            logger.warning(f"The zone {zone} doesn't exist or implemented yet !")
 
                 return
 
@@ -106,7 +109,8 @@ class CaseFanController:
             f"CPU {self.cpu_temperature}°C ({cpu_temp_range[0]} → {cpu_temp_range[1]}) {cpu_fan_speed}% 💨 \n\n"
         )
 
-        fan_speeds_str = " | ".join([f"{fan[0]}({fan[1]} RPM)" if fan[1] != "N/A" else f"{fan[0]}" for fan in fan_speeds])
+        fan_speeds_str = " | ".join(
+            [f"{fan[0]}({fan[1]} RPM)" if fan[1] != "N/A" else f"{fan[0]}" for fan in fan_speeds])
         text_to_print += fan_speeds_str + "\n\n"
 
         for i in range(0, len(disk_info), 3):
@@ -117,11 +121,11 @@ class CaseFanController:
                 disk_info_str += formatted_info + " | "
             text_to_print += disk_info_str[:-3] + "\n"
 
-        print(text_to_print)
+        logger.info(text_to_print)
 
     def loop(self):
 
-        print("Fan mode set to FULL")
+        logger.info("Fan mode set to FULL")
         if not self.dry_run:
             self.ipmitool.set_fan_mode("full")
 
@@ -143,7 +147,7 @@ class CaseFanController:
                 self.print_info()
 
                 if self.dry_run:
-                    print("Dry Run Mode - No changes made.\n")
+                    logger.info("Dry Run Mode - No changes made.\n")
 
                 time.sleep(self.loop_sleep_time)
                 os.system('cls' if os.name == 'nt' else 'clear')
@@ -157,6 +161,8 @@ def main():
         disk_monitor = DiskMonitor()
         ipmitool = Ipmitool()
         cpu_monitor = CPUMonitor()
+
+        Logger("fan_control", "INFO", webhook_url=DISCORD_WEBHOOK_LOGS).setup()
 
         case_fan_controller = CaseFanController(ipmitool, disk_monitor, cpu_monitor,
                                                 disk_fan_speed_grid, cpu_fan_speed_grid)

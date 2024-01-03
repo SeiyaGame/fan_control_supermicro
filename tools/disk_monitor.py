@@ -1,7 +1,10 @@
 import concurrent.futures
+import logging
 import os
 import re
 import subprocess
+
+logger = logging.getLogger("fan_control")
 
 
 class DiskMonitor:
@@ -14,8 +17,8 @@ class DiskMonitor:
         try:
             return subprocess.check_output(command, shell=True, text=True)
         except subprocess.CalledProcessError as e:
-            print(f"Error executing command: {command}")
-            print(f"Error message: {e}")
+            logger.error(f"Error executing command: {command}")
+            logger.error(f"Error message: {e}")
             return None
 
     def get_disk_list(self, exclude=None):

@@ -1,5 +1,8 @@
+import logging
 import subprocess
 import time
+
+logger = logging.getLogger("fan_control")
 
 
 class Ipmitool:
@@ -14,8 +17,8 @@ class Ipmitool:
                 time.sleep(sleep_time)
             return True
         except subprocess.CalledProcessError as e:
-            print(f"Error executing command: {command}")
-            print(f"Error message: {e}")
+            logger.error(f"Error executing command: {command}")
+            logger.error(f"Error message: {e}")
             return False
 
     def run_ipmi_command(self, args, sleep_time=0):
@@ -26,8 +29,8 @@ class Ipmitool:
                 time.sleep(sleep_time)
             return output
         except subprocess.CalledProcessError as e:
-            print(f"Error executing command: {command}")
-            print(f"Error message: {e}")
+            logger.error(f"Error executing command: {command}")
+            logger.error(f"Error message: {e}")
             return None
 
     def set_fan_mode(self, mode="full"):
@@ -49,7 +52,7 @@ class Ipmitool:
         elif mode == "heavy-IO":
             convert_mode = "0x04"
         else:
-            print("Unsupported fan mode")
+            logger.warning("Unsupported fan mode")
             return False
 
         command_args = f"0x30 0x45 0x01 {convert_mode}"
@@ -65,11 +68,11 @@ class Ipmitool:
         :return:
         """
         if zone not in [0, 1]:
-            print("Only CPU zone (0x00) and Peripheral zone (0x01) exist !")
+            logger.warning("Only CPU zone (0x00) and Peripheral zone (0x01) exist !")
             return False
 
         if speed_percent not in range(0, 100):
-            print("Select a proper value between 0 and 100 percent !")
+            logger.warning("Select a proper value between 0 and 100 percent !")
             return False
 
         command_args = f"0x30 0x70 0x66 0x01 {hex(zone)} {hex(speed_percent)}"
@@ -130,7 +133,7 @@ class Ipmitool:
             command_args = f"bmc reset {reset_type}"
             return self.run_ipmi_command(command_args, sleep_time=5)
         else:
-            print("Unsupported BMC reset type")
+            logger.warning("Unsupported BMC reset type")
             return False
 
 
