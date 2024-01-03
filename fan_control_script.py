@@ -1,8 +1,8 @@
 import os
 import time
-from ipmitool import Ipmitool
-from disk_monitor import DiskMonitor
-from cpu_monitor import CPUMonitor
+from tools.ipmitool import Ipmitool
+from tools.disk_monitor import DiskMonitor
+from tools.cpu_monitor import CPUMonitor
 
 # Fan speed control grid based on hard drive temperatures
 disk_fan_speed_grid = {
