@@ -1,5 +1,5 @@
+import argparse
 import logging
-import os
 import time
 from tools.ipmitool import Ipmitool
 from tools.disk_monitor import DiskMonitor
@@ -155,23 +155,36 @@ class CaseFanController:
             return
 
 
+def parser_setup():
+    parser = argparse.ArgumentParser(description='Control fan speed via IPMI of Supermicro motherboard')
+    parser.add_argument('-d', '--dry_run', action='store_true', help='No changes made, only to visualised')
+    parser.add_argument('--discord_webhook', type=str, default=None, help='Send all logs also to webhook discord')
+
+    return parser.parse_args()
+
+
 def main():
     try:
         disk_monitor = DiskMonitor()
         ipmitool = Ipmitool()
         cpu_monitor = CPUMonitor()
 
-        Logger("fan_control", "INFO", webhook_url=DISCORD_WEBHOOK_LOGS).setup()
+        args = parser_setup()
+        dry_run = args.dry_run
+        discord_webhook = args.discord_webhook
+
+        Logger("fan_control", "INFO", webhook_url=discord_webhook).setup()
 
         case_fan_controller = CaseFanController(ipmitool, disk_monitor, cpu_monitor,
                                                 disk_fan_speed_grid, cpu_fan_speed_grid)
 
-        # case_fan_controller.set_dry_run(True)
+        case_fan_controller.set_dry_run(dry_run)
 
         case_fan_controller.loop()
 
     except Exception as e:
         print(f"An unknown error occurred : {e}")
+        exit(1)
 
 
 if __name__ == "__main__":
