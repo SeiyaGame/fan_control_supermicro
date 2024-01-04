@@ -44,8 +44,8 @@ Or download the script and run it :
 wget https://raw.githubusercontent.com/SeiyaGame/fan_control_supermicro/main/install_script.sh
 chmod +x install_script.sh && ./install_script.sh
 ```
-Finally, you can edit the variables in the file `fan_control_script.py` and then start the service: `service fan-control start`
 
+Finally, you can edit the variables in the file `fan_control_script.py` and then start the service: `service fan-control start` or run the script `python3 fan_control_script.py`
 
 ## Usage
 
