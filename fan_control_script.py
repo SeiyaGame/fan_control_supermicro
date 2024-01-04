@@ -150,7 +150,6 @@ class CaseFanController:
                     logger.info("Dry Run Mode - No changes made.\n")
 
                 time.sleep(self.loop_sleep_time)
-                os.system('cls' if os.name == 'nt' else 'clear')
 
         except KeyboardInterrupt:
             return
