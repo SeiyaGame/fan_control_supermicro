@@ -49,9 +49,10 @@ Finally, you can edit the variables in the file `fan_control_script.py` and then
 
 ## Usage
 
-1. Configure the fan speed grids (disk_fan_speed_grid and cpu_fan_speed_grid) as per your requirements.
+1. Configure the fan speed grids (**disk_fan_speed_grid** and **cpu_fan_speed_grid**) as per your requirements.
 2. Run the script: `python3 fan_control_script.py`
-3. Optionally, enable dry run mode by setting `set_dry_run(True)` to test without applying changes. _(For the moment)_
+3. Optionally, enable dry run mode by adding `-d` or `--dry_run` to test without applying changes.
+4. Optionally, you can send logs message to a discord webhook by editing variables in the file `fan_control_script.py` or by adding `--discord_webhook 'YOUR_URL'`
 
 ### Output in your console
 
@@ -77,7 +78,7 @@ FAN1(700 RPM) | FAN2(700 RPM) | FAN3(700 RPM) | FAN4 | FAN5(700 RPM) | FANA(1000
 
 ## Limitations
 
-- Currently, supports only Debian-based systems and TrueNAS Scale.
+- Currently, supports only Debian-based systems and TrueNAS Scale. (planned to restrict)
 - Does not include a web interface or Prometheus exporter (planned for future updates).
 
 ## Contributing
