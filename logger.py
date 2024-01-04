@@ -42,11 +42,11 @@ class Logger:
         console_handler.setFormatter(formatter)
         self.logger.addHandler(console_handler)
 
-        if self.webhook_url is not None:
+        if self.webhook_url:
             webhook_handler = WebhookHandler(self.webhook_url)
             self.logger.addHandler(webhook_handler)
 
-        if self.log_file is not None:
+        if self.log_file:
             try:
                 file_handler = RotatingFileHandler(
                     filename=self.log_file,
