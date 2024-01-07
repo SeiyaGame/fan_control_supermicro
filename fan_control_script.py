@@ -40,14 +40,19 @@ class CaseFanController:
         self.ipmitool = ipmitool
         self.disk_monitor = disk_monitor
         self.cpu_monitor = cpu_monitor
+
         self.disk_fan_speed_grid = disk_fan_speed_grid
         self.cpu_fan_speed_grid = cpu_fan_speed_grid
+
         self.dry_run = False
 
         self.loop_sleep_time = loop_sleep_time
 
         self.highest_hdd_temperature = -1
         self.cpu_temperature = -1
+
+        self.ipmi_fan_speed = list()
+        self.disk_info = list()
 
         self.current_fan_speed = dict()
 
@@ -87,11 +92,6 @@ class CaseFanController:
         return max(disk_info, key=lambda x: x[1])
 
     def print_info(self):
-        # Get current fan speeds
-        fan_speeds = self.ipmitool.get_fan_speed_bis()
-
-        # Get disk information
-        disk_info = self.disk_monitor.get_disk_info()
 
         peripheral_temp_range, peripheral_fan_speed = self.current_fan_speed['peripheral']
         cpu_temp_range, cpu_fan_speed = self.current_fan_speed['cpu']
@@ -102,12 +102,11 @@ class CaseFanController:
             f"CPU {self.cpu_temperature}°C ({cpu_temp_range[0]} → {cpu_temp_range[1]}) {cpu_fan_speed}% 💨 \n\n"
         )
 
-        fan_speeds_str = " | ".join(
-            [f"{fan[0]}({fan[1]} RPM)" if fan[1] != "N/A" else f"{fan[0]}" for fan in fan_speeds])
+        fan_speeds_str = " | ".join([f"{fan[0]}({fan[1]} RPM)" if fan[1] != "N/A" else f"{fan[0]}" for fan in self.ipmi_fan_speed])
         text_to_print += fan_speeds_str + "\n\n"
 
-        for i in range(0, len(disk_info), 3):
-            group = disk_info[i:i + 3]
+        for i in range(0, len(self.disk_info), 3):
+            group = self.disk_info[i:i + 3]
             disk_info_str = ""
             for disk in group:
                 formatted_info = "{:^7} - {}°C - S/N: {:<12}".format(disk[0], disk[1], disk[2])
@@ -124,6 +123,12 @@ class CaseFanController:
 
         try:
             while True:
+
+                # Get current fan speeds
+                self.ipmi_fan_speed = self.ipmitool.get_fan_speed_bis()
+
+                # Get disk information
+                self.disk_info = self.disk_monitor.get_disk_info(exclude="^nvme")
 
                 # Get the highest HDD temperature
                 self.highest_hdd_temperature = self.get_highest_hdd_temperature()
