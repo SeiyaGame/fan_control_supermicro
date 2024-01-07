@@ -88,8 +88,7 @@ class CaseFanController:
         self.dry_run = dry_run
 
     def get_highest_hdd_temperature(self):
-        disk_info = self.disk_monitor.get_disk_info(exclude="^nvme")
-        return max(disk_info, key=lambda x: x[1])
+        return max(self.disk_info, key=lambda x: x[1])[1]
 
     def print_info(self):
 
