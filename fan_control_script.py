@@ -5,6 +5,7 @@ from tools.ipmitool import Ipmitool
 from tools.disk_monitor import DiskMonitor
 from tools.cpu_monitor import CPUMonitor
 from logger import Logger
+import exporter
 
 # Fan speed control grid based on hard drive temperatures
 disk_fan_speed_grid = {
@@ -103,7 +104,7 @@ class CaseFanController:
 
         fan_speeds_str = " | ".join([f"{fan[0]}({fan[1]} RPM)" if fan[1] != "N/A" else f"{fan[0]}" for fan in self.ipmi_fan_speed])
         text_to_print += fan_speeds_str + "\n\n"
-
+        
         for i in range(0, len(self.disk_info), 3):
             group = self.disk_info[i:i + 3]
             disk_info_str = ""
@@ -143,6 +144,8 @@ class CaseFanController:
 
                 self.print_info()
 
+                exporter.fetch(self.disk_info, self.ipmi_fan_speed, self.current_fan_speed)
+
                 if self.dry_run:
                     logger.info("Dry Run Mode - No changes made.\n")
 
@@ -156,6 +159,8 @@ def parser_setup():
     parser = argparse.ArgumentParser(description='Control fan speed via IPMI of Supermicro motherboard')
     parser.add_argument('-d', '--dry_run', action='store_true', help='No changes made, only to visualised')
     parser.add_argument('--discord_webhook', type=str, default=None, help='Send all logs also to webhook discord')
+    parser.add_argument('--prometheus_enable', action='store_true', help='Enable Prometheus exporter')
+    parser.add_argument('--prometheus_port', type=int, default=9495, help='Listening port for Prometheus exporter')
 
     return parser.parse_args()
 
@@ -169,11 +174,16 @@ def main():
         args = parser_setup()
         dry_run = args.dry_run
         discord_webhook = args.discord_webhook
+        prometheus_enable = args.prometheus_enable
+        prometheus_port = args.prometheus_port
 
         Logger("fan_control", "INFO", webhook_url=discord_webhook).setup()
 
         case_fan_controller = CaseFanController(ipmitool, disk_monitor, cpu_monitor,
                                                 disk_fan_speed_grid, cpu_fan_speed_grid)
+
+        if prometheus_enable:
+            exporter.setup(prometheus_port)
 
         case_fan_controller.set_dry_run(dry_run)
 
