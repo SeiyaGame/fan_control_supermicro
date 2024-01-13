@@ -11,6 +11,7 @@ from tools.cpu_monitor import CPUMonitor
 from tools.config_validator import ConfigValidator
 from datetime import datetime, timedelta
 from logger import Logger
+import exporter
 
 BASE_DIR = pathlib.Path(__file__).parent
 LOG_DIR = os.path.join(BASE_DIR, "logs")
@@ -208,6 +209,8 @@ class CaseFanController:
 
                 self.print_info()
 
+                exporter.fetch(self.disk_info, self.ipmi_fan_speed, self.current_fan_speed)
+
                 if self.dry_run:
                     logger.info("Dry Run Mode - No changes made.\n")
 
@@ -227,6 +230,7 @@ def parser_setup():
     parser.add_argument('--no_console_log_stream', action='store_true', default=False, help='Disable Stream log in console')
     parser.add_argument('--webhook_url', type=str, default=None, help='Send message to a webhook url')
     parser.add_argument('--only_alert', action='store_true', default=True, help='Send only alert message to the webhook url')
+    parser.add_argument('--prometheus_port', type=int, default=9495, help='Listening port for Prometheus exporter')
 
     return parser.parse_args()
 
@@ -238,6 +242,8 @@ def main():
         webhook_url = args.webhook_url or WEBHOOK_URL
         only_alert = args.only_alert
         no_console_log_stream = args.no_console_log_stream
+        prometheus_enable = args.prometheus_enable
+        prometheus_port = args.prometheus_port
 
         ConfigValidator().validate()
 
@@ -261,6 +267,9 @@ def main():
 
         case_fan_controller = CaseFanController(ipmitool, disk_monitor, cpu_monitor,
                                                 DISK_FAN_SPEED_GRID, CPU_FAN_SPEED_GRID)
+
+        if prometheus_enable:
+            exporter.setup(prometheus_port)
 
         case_fan_controller.set_dry_run(dry_run)
 
