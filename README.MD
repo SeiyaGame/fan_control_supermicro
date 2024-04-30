@@ -76,6 +76,17 @@ FAN1(700 RPM) | FAN2(700 RPM) | FAN3(700 RPM) | FAN4 | FAN5(700 RPM) | FANA(1000
 - Fan Speed Grids: Adjust the temperature ranges and corresponding fan speeds in the script.
 - Loop Sleep Time: Set the time interval between each monitoring loop.
 
+## Truenas Scale Setup
+
+Follow the step [here](#installation) but install the script in a dataset of your pool for exemple in `/mnt/tank/scripts/fan_control`  
+Then go the Truenas scale web interface in `System Settings` -> `Advanced` -> `Init/Shutdown Scripts` and click `Add`
+
+- Description: `Script to control fan speed`
+- Type: `Script`
+- Script: `/mnt/tank/scripts/fan_control/setup_fan_control_supermicro.sh`
+- When: `Post Init`
+- Enable: `Yes`
+
 ## Limitations
 
 - Currently, supports only Debian-based systems and TrueNAS Scale. (planned to restrict)
