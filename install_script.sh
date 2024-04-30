@@ -24,7 +24,7 @@ After=network-online.target
 [Service]
 Type=simple
 ExecStartPre=/usr/bin/sleep 10
-ExecStart=/usr/bin/python3 $SOFTWARE_DIR/fan_control_script.py
+ExecStart=/usr/bin/python3 $SOFTWARE_DIR/fan_control_script.py --no_console_log_stream
 WorkingDirectory=$SOFTWARE_DIR
 Restart=always
 
