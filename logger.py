@@ -9,6 +9,11 @@ VALID_LOG_LEVELS = ["DEBUG", "INFO", "WARNING", "ERROR"]
 # logger = logging.getLogger("NAME_OF_THE_LOGGER")
 # logger.info("This is an information message.")
 
+LOG_FORMAT = '`%(asctime)s` - `%(levelname)s` - %(message)s'
+DATE_FORMAT = '%d/%m/%Y %H:%M:%S'
+FORMATTER = logging.Formatter(fmt=LOG_FORMAT, datefmt=DATE_FORMAT)
+
+
 class Logger:
 
     def __init__(self, name, log_level="INFO", log_file='fan_control.log',
@@ -21,10 +26,12 @@ class Logger:
         self.webhook_url = webhook_url
         self.logger = logging.getLogger(self.name)
 
+    def enable_stream_console(self):
+        console_handler = logging.StreamHandler()
+        console_handler.setFormatter(FORMATTER)
+        self.logger.addHandler(console_handler)
+
     def setup(self):
-        log_format = '%(asctime)s - %(levelname)s - %(message)s'
-        date_format = '%d/%m/%Y %H:%M:%S'
-        formatter = logging.Formatter(fmt=log_format, datefmt=date_format)
 
         if self.log_level is None or self.log_level == "":
             raise ValueError("Log level undefined or empty. Check config please.")
@@ -37,10 +44,6 @@ class Logger:
             raise ValueError(f"Invalid log level: {self.log_level}")
 
         self.logger.setLevel(numeric_log_level)
-
-        console_handler = logging.StreamHandler()
-        console_handler.setFormatter(formatter)
-        self.logger.addHandler(console_handler)
 
         if self.webhook_url:
             webhook_handler = WebhookHandler(self.webhook_url)
@@ -58,7 +61,7 @@ class Logger:
                 self.logger.exception("Problems setting up log file.")
                 raise
 
-            file_handler.setFormatter(formatter)
+            file_handler.setFormatter(FORMATTER)
             self.logger.addHandler(file_handler)
 
         return self.logger
