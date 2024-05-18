@@ -131,7 +131,7 @@ class CaseFanController:
 def parser_setup():
     parser = argparse.ArgumentParser(description='Control fan speed via IPMI of Supermicro motherboard')
     parser.add_argument('-d', '--dry_run', action='store_true', help='No changes made, only to visualised')
-    parser.add_argument('--no_console_log_stream', action='store_true', default=True, help='Disable Stream log in console')
+    parser.add_argument('--no_console_log_stream', action='store_true', default=False, help='Disable Stream log in console')
     parser.add_argument('--discord_webhook', type=str, default=None, help='Send all logs also to webhook discord')
 
     return parser.parse_args()
@@ -144,7 +144,9 @@ def main():
         discord_webhook = args.discord_webhook or DISCORD_WEBHOOK_LOGS
         no_console_log_stream = args.no_console_log_stream
 
-        logger = Logger("fan_control", "INFO", webhook_url=discord_webhook).setup()
+        logger = Logger("fan_control", "INFO", webhook_url=discord_webhook)
+        logger.setup()
+
         if not no_console_log_stream:
             logger.enable_stream_console()
 
