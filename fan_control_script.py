@@ -1,11 +1,23 @@
 import argparse
 import logging
+import os.path
+import pathlib
+import traceback
 import time
 from tools.ipmitool import Ipmitool
 from tools.disk_monitor import DiskMonitor
 from tools.cpu_monitor import CPUMonitor
 from logger import Logger
-from config import *
+
+
+BASE_DIR = pathlib.Path(__file__).parent
+config_file = os.path.join(BASE_DIR, "config.py")
+if os.path.exists(config_file):
+    from config import *
+else:
+    print("No configuration file exists, copy the existing file 'config.sample.py' "
+          "to 'config.py' and change the values in this file!")
+    exit(1)
 
 logger = logging.getLogger("fan_control")
 
@@ -165,6 +177,7 @@ def main():
 
     except Exception as e:
         print(f"An unknown error occurred : {e}")
+        print(traceback.format_exc())
         exit(1)
 
 
