@@ -103,7 +103,7 @@ class CaseFanController:
                 self.ipmi_fan_speed = self.ipmitool.get_fan_speed_bis()
 
                 # Get disk information
-                self.disk_info = self.disk_monitor.get_disk_info(exclude="^nvme")
+                self.disk_info = self.disk_monitor.get_disk_info(exclude_none_hdd=True)
 
                 # Get the highest HDD temperature
                 self.highest_hdd_temperature = self.get_highest_hdd_temperature()

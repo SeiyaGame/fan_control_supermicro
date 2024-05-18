@@ -1,4 +1,5 @@
 import concurrent.futures
+import json
 import logging
 import os
 import re
@@ -21,25 +22,44 @@ class DiskMonitor:
             logger.error(f"Error message: {e}")
             return None
 
-    def get_disk_list(self, exclude=None):
+    def get_disk_list(self, exclude_name=None, exclude_none_hdd=False):
         """
         Get a list of disk names, excluding those matching a regular expression pattern.
 
-        :param exclude:
-            A regular expression pattern to define exclusion criteria.
-            For example, to exclude all 'nvme' disks and only include 'sdi', use: '^(nvme|sdi)'.
+        :param exclude_name:
+            A regular expression pattern to define exclusion criteria based on name
+            For example: '^(nvme*|sdi)' it ignore /dev/sdi and all /dev/nvme*
+
+        :param exclude_none_hdd:
+            Is boolean, so can be set to True or False and exclude all SSD and NVME from the list
+
         :return:
             A list of disk names that do not match the exclusion pattern.
         """
 
-        command = "lsblk -d -o NAME"
-        command += f"| grep -vE {exclude}" if exclude else ''
-
+        command = "lsblk -d -o name,rota --json"
         disk_list_output = self.run_command(command)
-        if disk_list_output:
-            return disk_list_output.strip().split('\n')[1:]  # Exclude the header line
-        else:
-            return []
+
+        # Parse the JSON output
+        disk_data = json.loads(disk_list_output)
+
+        # Initialize the list of disk names
+        disk_names = []
+
+        # Iterate over each block device
+        for device in disk_data["blockdevices"]:
+            # Apply the exclusion criteria based on the name
+            if exclude_name and re.match(exclude_name, device["name"]):
+                continue
+
+            # Apply the exclusion criteria based on the rotation (SSD and NVME)
+            if exclude_none_hdd and not device["rota"]:
+                continue
+
+            # Add the disk name to the list if it passes the filters
+            disk_names.append(device["name"])
+
+        return disk_names
 
     def get_disk_smartctl(self, disk_name):
         command = f"smartctl -iA {os.path.join('/dev', disk_name)}"
@@ -72,8 +92,8 @@ class DiskMonitor:
         else:
             return 'UNDEFINED'
 
-    def get_disk_info(self, exclude=None):
-        disk_names = self.get_disk_list(exclude)
+    def get_disk_info(self, exclude_name=None, exclude_none_hdd=False):
+        disk_names = self.get_disk_list(exclude_name, exclude_none_hdd)
 
         def fetch_disk_info(disk_name):
             smartctl_output = self.get_disk_smartctl(disk_name)
