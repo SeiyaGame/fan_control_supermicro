@@ -53,9 +53,9 @@ class CaseFanController:
 
                 fan_speed_status = f"Set fan speed for the {zone} zone to {fan_speed_percent_grid}% ({hex(fan_speed_percent_grid)}) "
 
-                if isinstance(temperature, int):
+                if isinstance(temp_grid, int):
                     fan_speed_status += f"(Temperature reach: {temp_grid})"
-                elif isinstance(temperature, tuple):
+                elif isinstance(temp_grid, tuple):
                     fan_speed_status += f"(Temperature range: {temp_grid[0]} → {temp_grid[1]})"
 
                 logger.info(fan_speed_status)
@@ -92,14 +92,20 @@ class CaseFanController:
 
     def print_info(self):
 
-        peripheral_temp_range, peripheral_fan_speed = self.current_fan_speed['peripheral']
-        cpu_temp_range, cpu_fan_speed = self.current_fan_speed['cpu']
+        peripheral_temp, peripheral_fan_speed = self.current_fan_speed['peripheral']
+        cpu_temp, cpu_fan_speed = self.current_fan_speed['cpu']
 
-        text_to_print = (
-            f"-----------\n"
-            f"HDD ↑ {self.highest_hdd_temperature}°C ({peripheral_temp_range[0]} → {peripheral_temp_range[1]}) {peripheral_fan_speed}% 💨 | "
-            f"CPU {self.cpu_temperature}°C ({cpu_temp_range[0]} → {cpu_temp_range[1]}) {cpu_fan_speed}% 💨 \n\n"
-        )
+        text_to_print = "-----------\n"
+
+        if isinstance(peripheral_temp, tuple):
+            text_to_print += f"HDD ↑ {self.highest_hdd_temperature}°C ({peripheral_temp[0]} → {peripheral_temp[1]}) {peripheral_fan_speed}% 💨 | "
+        else:
+            text_to_print += f"HDD ↑ {self.highest_hdd_temperature}°C {peripheral_fan_speed}% 💨 | "
+
+        if isinstance(cpu_temp, tuple):
+            text_to_print += f"CPU {self.cpu_temperature}°C ({cpu_temp[0]} → {cpu_temp[1]}) {cpu_fan_speed}% 💨 \n\n"
+        else:
+            text_to_print += f"CPU {self.cpu_temperature}°C {cpu_fan_speed}% 💨 \n\n"
 
         fan_speeds_str = " | ".join([f"{fan[0]}({fan[1]} RPM)" if fan[1] != "N/A" else f"{fan[0]}" for fan in self.ipmi_fan_speed])
         text_to_print += fan_speeds_str + "\n\n"
