@@ -1,9 +1,9 @@
 #!/bin/bash
 
+SOFTWARE_DIR=$(dirname "$0")
 SYSTEMD_SERVICE="/etc/systemd/system/fan-control.service"
 
 if [[ ! -e "$SYSTEMD_SERVICE" ]]; then
-
     echo "Installation of the service in progress ..."
 
 cat <<EOF > /etc/systemd/system/fan-control.service

@@ -40,7 +40,11 @@ Or download the script and run it :
 > [!NOTE]
 > Run the script at your own risk !
 
+> [!WARNING]
+> Make sure you are in the folder where you want to install fan_control !
+
 ```bash
+cd folder_where_you_want
 wget https://raw.githubusercontent.com/SeiyaGame/fan_control_supermicro/main/install_script.sh
 chmod +x install_script.sh && ./install_script.sh
 ```
