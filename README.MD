@@ -45,14 +45,15 @@ wget https://raw.githubusercontent.com/SeiyaGame/fan_control_supermicro/main/ins
 chmod +x install_script.sh && ./install_script.sh
 ```
 
-Finally, you can edit the variables in the file `fan_control_script.py` and then start the service: `service fan-control start` or run the script `python3 fan_control_script.py`
+Finally, you can copy the `config.sample.py` as `config.py` and then edit the variables in the file.  
+After that start the service: `service fan-control start` or run the script `python3 fan_control_script.py`
 
 ## Usage
 
 1. Configure the fan speed grids (**disk_fan_speed_grid** and **cpu_fan_speed_grid**) as per your requirements.
 2. Run the script: `python3 fan_control_script.py`
 3. Optionally, enable dry run mode by adding `-d` or `--dry_run` to test without applying changes.
-4. Optionally, you can send logs message to a discord webhook by editing variables in the file `fan_control_script.py` or by adding `--discord_webhook 'YOUR_URL'`
+4. Optionally, you can send logs message to a discord webhook by editing variables in the file `config.py` or by adding `--discord_webhook 'YOUR_URL'`
 
 ### Output in your console
 
