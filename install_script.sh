@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SOFTWARE_DIR="/opt/fan_control_supermicro"
+SOFTWARE_DIR="$PWD"
 GIT_REPO="https://github.com/SeiyaGame/fan_control_supermicro.git"
 SYSTEMD_SERVICE="/etc/systemd/system/fan-control.service"
 
