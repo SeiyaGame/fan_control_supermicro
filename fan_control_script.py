@@ -139,18 +139,18 @@ def parser_setup():
 
 def main():
     try:
-        disk_monitor = DiskMonitor()
-        ipmitool = Ipmitool()
-        cpu_monitor = CPUMonitor()
-
         args = parser_setup()
         dry_run = args.dry_run
-        discord_webhook = args.discord_webhook
+        discord_webhook = args.discord_webhook or DISCORD_WEBHOOK_LOGS
         no_console_log_stream = args.no_console_log_stream
 
         logger = Logger("fan_control", "INFO", webhook_url=discord_webhook).setup()
         if not no_console_log_stream:
             logger.enable_stream_console()
+
+        disk_monitor = DiskMonitor()
+        ipmitool = Ipmitool()
+        cpu_monitor = CPUMonitor()
 
         case_fan_controller = CaseFanController(ipmitool, disk_monitor, cpu_monitor,
                                                 disk_fan_speed_grid, cpu_fan_speed_grid)
