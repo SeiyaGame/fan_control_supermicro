@@ -47,24 +47,36 @@ class CaseFanController:
     def set_fan_speed_by_temperature(self, zone, temperature, fan_speed_grid):
         current_temp_range, current_fan_speed = self.current_fan_speed.get(zone, ((-1, -1), None))
 
-        for temp_range, fan_speed_percent in fan_speed_grid.items():
-            if temp_range[0] <= temperature <= temp_range[1]:
+        def update_fan_speed(temp_grid, fan_speed_percent_grid):
+            if current_fan_speed is None or current_fan_speed != fan_speed_percent_grid:
+                self.current_fan_speed[zone] = temp_grid, fan_speed_percent_grid
 
-                if current_fan_speed is None or current_fan_speed != fan_speed_percent:
-                    self.current_fan_speed[zone] = temp_range, fan_speed_percent
+                fan_speed_status = f"Set fan speed for the {zone} zone to {fan_speed_percent_grid}% ({hex(fan_speed_percent_grid)}) "
 
-                    logger.info(f"Set fan speed for the {zone} zone to {fan_speed_percent}% ({hex(fan_speed_percent)}) "
-                                f"(Temperature range: {temp_range[0]} → {temp_range[1]})")
+                if isinstance(temperature, int):
+                    fan_speed_status += f"(Temperature reach: {temp_grid})"
+                elif isinstance(temperature, tuple):
+                    fan_speed_status += f"(Temperature range: {temp_grid[0]} → {temp_grid[1]})"
 
-                    if not self.dry_run:
-                        if zone == 'cpu':
-                            self.ipmitool.set_fan_speed(0, fan_speed_percent)
-                        elif zone == 'peripheral':
-                            self.ipmitool.set_fan_speed(1, fan_speed_percent)
-                        else:
-                            logger.warning(f"The zone {zone} doesn't exist or implemented yet !")
+                logger.info(fan_speed_status)
 
-                return
+                if not self.dry_run:
+                    if zone == 'cpu':
+                        self.ipmitool.set_fan_speed(0, fan_speed_percent_grid)
+                    elif zone == 'peripheral':
+                        self.ipmitool.set_fan_speed(1, fan_speed_percent_grid)
+                    else:
+                        logger.warning(f"The zone {zone} doesn't exist or is not implemented yet!")
+
+        for temp_grid, fan_speed_percent_grid in fan_speed_grid.items():
+            if isinstance(temp_grid, tuple):
+                if temp_grid[0] <= temperature <= temp_grid[1]:
+                    update_fan_speed(temp_grid, fan_speed_percent_grid)
+                    return
+            elif isinstance(temp_grid, int):
+                if temperature == temp_grid:
+                    update_fan_speed(temp_grid, fan_speed_percent_grid)
+                    return
 
     def set_peripheral_fan_speed_by_temperature(self, temperature):
         self.set_fan_speed_by_temperature('peripheral', temperature, self.disk_fan_speed_grid)
