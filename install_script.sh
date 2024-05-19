@@ -37,3 +37,11 @@ EOF
 else
     echo "Service already installed !"
 fi
+
+if ! grep -q "alias fan-control-logs=" ~/.bashrc; then
+    echo "alias fan-control-logs='tail -f -n 15 $SOFTWARE_DIR/fan_control.log'" >> ~/.bashrc
+    echo "Command 'fan-control-logs' added to view logs."
+    echo "Please source ~/.bashrc manually for the fan-control-logs alias to become effective immediately."
+else
+    echo "Alias 'fan-control-logs' already exists in ~/.bashrc."
+fi

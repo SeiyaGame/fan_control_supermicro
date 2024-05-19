@@ -52,6 +52,9 @@ chmod +x install_script.sh && ./install_script.sh
 Finally, you can copy the `config.sample.py` as `config.py` and then edit the variables in the file.  
 After that start the service: `service fan-control start` or run the script `python3 fan_control_script.py`
 
+To see logs you can use the command `fan-control-logs` which is added when you run the script before !  
+Or you can do it manually with `tail -f -n 15 /mnt/tank/scripts/fan_control/fan_control.log`
+
 ## Usage
 
 1. Configure the fan speed grids (**disk_fan_speed_grid** and **cpu_fan_speed_grid**) as per your requirements.
