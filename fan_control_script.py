@@ -4,11 +4,12 @@ import os.path
 import pathlib
 import traceback
 import time
+import requests
 from tools.ipmitool import Ipmitool
 from tools.disk_monitor import DiskMonitor
 from tools.cpu_monitor import CPUMonitor
+from datetime import datetime, timedelta
 from logger import Logger
-
 
 BASE_DIR = pathlib.Path(__file__).parent
 config_file = os.path.join(BASE_DIR, "config.py")
@@ -20,6 +21,15 @@ else:
     exit(1)
 
 logger = logging.getLogger("fan_control")
+
+
+def send_webhook_notification(message):
+    try:
+        response = requests.post(WEBHOOK_URL, json={"content": message})
+        response.raise_for_status()
+        logger.info("Notification sent successfully.")
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Failed to send notification: {e}")
 
 
 class CaseFanController:
@@ -36,13 +46,30 @@ class CaseFanController:
 
         self.loop_sleep_time = loop_sleep_time
 
-        self.highest_hdd_temperature = -1
+        self.highest_disk_temperature = -1
         self.cpu_temperature = -1
 
         self.ipmi_fan_speed = list()
         self.disk_info = list()
 
         self.current_fan_speed = dict()
+        self.notification_sent = False
+        self.last_notification_time = datetime.min  # Initialisation
+
+    def check_disk_temperature_and_notify(self):
+        disk_name, temperature, serial_number = self.get_highest_disk_temperature()
+        notification_disk_message = f"⚠️WARNING⚠️\n Disk '{disk_name}' reach {temperature}°C !"
+
+        now = datetime.now()
+        time_since_last_notification = now - self.last_notification_time
+
+        if temperature >= NOTIFICATION_DISK_REACH_TEMPERATURE:
+            if not self.notification_sent or time_since_last_notification > timedelta(minutes=NOTIFICATION_SEND_EVERY_MINUTE):
+                send_webhook_notification(notification_disk_message)
+                self.notification_sent = True
+                self.last_notification_time = now
+        elif self.notification_sent and time_since_last_notification > timedelta(minutes=NOTIFICATION_SEND_EVERY_MINUTE):
+            self.notification_sent = False  # Reset notification status
 
     def set_fan_speed_by_temperature(self, zone, temperature, fan_speed_grid):
         current_temp_range, current_fan_speed = self.current_fan_speed.get(zone, ((-1, -1), None))
@@ -87,8 +114,8 @@ class CaseFanController:
     def set_dry_run(self, dry_run):
         self.dry_run = dry_run
 
-    def get_highest_hdd_temperature(self):
-        return max(self.disk_info, key=lambda x: x[1])[1]
+    def get_highest_disk_temperature(self):
+        return max(self.disk_info, key=lambda x: x[1])
 
     def print_info(self):
 
@@ -98,9 +125,9 @@ class CaseFanController:
         text_to_print = "-----------\n"
 
         if isinstance(peripheral_temp, tuple):
-            text_to_print += f"HDD ↑ {self.highest_hdd_temperature}°C ({peripheral_temp[0]} → {peripheral_temp[1]}) {peripheral_fan_speed}% 💨 | "
+            text_to_print += f"HDD ↑ {self.highest_disk_temperature}°C ({peripheral_temp[0]} → {peripheral_temp[1]}) {peripheral_fan_speed}% 💨 | "
         else:
-            text_to_print += f"HDD ↑ {self.highest_hdd_temperature}°C {peripheral_fan_speed}% 💨 | "
+            text_to_print += f"HDD ↑ {self.highest_disk_temperature}°C {peripheral_fan_speed}% 💨 | "
 
         if isinstance(cpu_temp, tuple):
             text_to_print += f"CPU {self.cpu_temperature}°C ({cpu_temp[0]} → {cpu_temp[1]}) {cpu_fan_speed}% 💨 \n\n"
@@ -135,17 +162,20 @@ class CaseFanController:
                 # Get disk information
                 self.disk_info = self.disk_monitor.get_disk_info(exclude_none_hdd=True)
 
-                # Get the highest HDD temperature
-                self.highest_hdd_temperature = self.get_highest_hdd_temperature()
+                # Get the highest disk temperature
+                self.highest_disk_temperature = self.get_highest_disk_temperature()[1]
 
                 # Get CPU temperature
                 self.cpu_temperature = self.cpu_monitor.get_cpu_temperature()
 
-                # Set FAN speed in function of hdd temperature
-                self.set_peripheral_fan_speed_by_temperature(self.highest_hdd_temperature)
+                # Set FAN speed in function of disk temperature
+                self.set_peripheral_fan_speed_by_temperature(self.highest_disk_temperature)
 
                 # Set FAN speed in function of cpu temperature
                 self.set_cpu_fan_speed_by_temperature(self.cpu_temperature)
+
+                # Check if the disk temperature exceeds the threshold and send a notification if necessary
+                self.check_disk_temperature_and_notify()
 
                 self.print_info()
 
@@ -161,8 +191,10 @@ class CaseFanController:
 def parser_setup():
     parser = argparse.ArgumentParser(description='Control fan speed via IPMI of Supermicro motherboard')
     parser.add_argument('-d', '--dry_run', action='store_true', help='No changes made, only to visualised')
-    parser.add_argument('--no_console_log_stream', action='store_true', default=False, help='Disable Stream log in console')
-    parser.add_argument('--discord_webhook', type=str, default=None, help='Send all logs also to webhook discord')
+    parser.add_argument('--no_console_log_stream', action='store_true', default=False,
+                        help='Disable Stream log in console')
+    parser.add_argument('--webhook_url', type=str, default=None, help='Send message to a webhook url')
+    parser.add_argument('--only_alert', action='store_true', default=True, help='Send only alert message to the webhook url')
 
     return parser.parse_args()
 
@@ -171,10 +203,15 @@ def main():
     try:
         args = parser_setup()
         dry_run = args.dry_run
-        discord_webhook = args.discord_webhook or DISCORD_WEBHOOK_LOGS
+        webhook_url = args.webhook_url or WEBHOOK_URL
+        only_alert = args.only_alert
         no_console_log_stream = args.no_console_log_stream
 
-        logger = Logger("fan_control", "INFO", webhook_url=discord_webhook)
+        if only_alert:
+            logger = Logger("fan_control", "INFO")
+        else:
+            logger = Logger("fan_control", "INFO", webhook_url=webhook_url)
+
         logger.setup()
 
         if not no_console_log_stream:
