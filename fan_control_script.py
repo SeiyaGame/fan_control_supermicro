@@ -198,8 +198,7 @@ class CaseFanController:
 def parser_setup():
     parser = argparse.ArgumentParser(description='Control fan speed via IPMI of Supermicro motherboard')
     parser.add_argument('-d', '--dry_run', action='store_true', help='No changes made, only to visualised')
-    parser.add_argument('--no_console_log_stream', action='store_true', default=False,
-                        help='Disable Stream log in console')
+    parser.add_argument('--no_console_log_stream', action='store_true', default=False, help='Disable Stream log in console')
     parser.add_argument('--webhook_url', type=str, default=None, help='Send message to a webhook url')
     parser.add_argument('--only_alert', action='store_true', default=True, help='Send only alert message to the webhook url')
 
