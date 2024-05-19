@@ -57,13 +57,21 @@ class CaseFanController:
         self.last_notification_time = datetime.min  # Initialisation
 
     def check_disk_temperature_and_notify(self):
-        disk_name, temperature, serial_number = self.get_highest_disk_temperature()
-        notification_disk_message = f"⚠️WARNING⚠️\n Disk '{disk_name}' S/N: {serial_number} reach {temperature}°C !"
-
         now = datetime.now()
         time_since_last_notification = now - self.last_notification_time
+        disk_reach_temp = [disk for disk in self.disk_info if disk[1] >= NOTIFICATION_DISK_REACH_TEMPERATURE]
 
-        if temperature >= NOTIFICATION_DISK_REACH_TEMPERATURE:
+        notification_disk_message = f"⚠️WARNING⚠️ | {len(disk_reach_temp)} disk reach {NOTIFICATION_DISK_REACH_TEMPERATURE}°C !"
+        notification_disk_message += "\n"
+
+        for i in range(0, len(disk_reach_temp), 2):
+            disk_info_str = " | ".join(
+                "{:^7} - {}°C - S/N: {:<12}".format(disk[0], disk[1], disk[2])
+                for disk in disk_reach_temp[i:i + 2]
+            )
+            notification_disk_message += disk_info_str + "\n"
+
+        if disk_reach_temp:
             if not self.notification_sent or time_since_last_notification > timedelta(minutes=NOTIFICATION_SEND_EVERY_MINUTE):
                 send_webhook_notification(notification_disk_message)
                 self.notification_sent = True
@@ -138,12 +146,11 @@ class CaseFanController:
         text_to_print += fan_speeds_str + "\n\n"
 
         for i in range(0, len(self.disk_info), 3):
-            group = self.disk_info[i:i + 3]
-            disk_info_str = ""
-            for disk in group:
-                formatted_info = "{:^7} - {}°C - S/N: {:<12}".format(disk[0], disk[1], disk[2])
-                disk_info_str += formatted_info + " | "
-            text_to_print += disk_info_str[:-3] + "\n"
+            disk_info_str = " | ".join(
+                "{:^7} - {}°C - S/N: {:<12}".format(disk[0], disk[1], disk[2])
+                for disk in self.disk_info[i:i + 3]
+            )
+            text_to_print += disk_info_str + "\n"
 
         logger.info(text_to_print)
 
