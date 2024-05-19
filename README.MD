@@ -57,7 +57,7 @@ After that start the service: `service fan-control start` or run the script `pyt
 1. Configure the fan speed grids (**disk_fan_speed_grid** and **cpu_fan_speed_grid**) as per your requirements.
 2. Run the script: `python3 fan_control_script.py`
 3. Optionally, enable dry run mode by adding `-d` or `--dry_run` to test without applying changes.
-4. Optionally, you can send logs message to a discord webhook by editing variables in the file `config.py` or by adding `--discord_webhook 'YOUR_URL'`
+4. Optionally, you can send logs message to a webhook url by editing variables in the file `config.py` or by adding `--webhook_url 'YOUR_URL'`
 
 ### Output in your console
 

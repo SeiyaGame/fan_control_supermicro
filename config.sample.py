@@ -24,5 +24,10 @@ cpu_fan_speed_grid = {
     (81, 100): 100  # Temperature from 61°C to 100°C: 100%
 }
 
-# If you want to send log to discord, put the URL here !
-DISCORD_WEBHOOK_LOGS = ""
+# If you want to send log to a webhook, put the URL here !
+WEBHOOK_URL = ""
+
+# Send a webhook notification when DISK reach a certain temperature
+NOTIFICATION_DISK_REACH_TEMPERATURE = 40
+# Send a webhook notification at least every X minutes if temperature is reach
+NOTIFICATION_SEND_EVERY_MINUTE = 5
