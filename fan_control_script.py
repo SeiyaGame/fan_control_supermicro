@@ -146,12 +146,11 @@ class CaseFanController:
         text_to_print += fan_speeds_str + "\n\n"
 
         for i in range(0, len(self.disk_info), 3):
-            group = self.disk_info[i:i + 3]
-            disk_info_str = ""
-            for disk in group:
-                formatted_info = "{:^7} - {}°C - S/N: {:<12}".format(disk[0], disk[1], disk[2])
-                disk_info_str += formatted_info + " | "
-            text_to_print += disk_info_str[:-3] + "\n"
+            disk_info_str = " | ".join(
+                "{:^7} - {}°C - S/N: {:<12}".format(disk[0], disk[1], disk[2])
+                for disk in self.disk_info[i:i + 3]
+            )
+            text_to_print += disk_info_str + "\n"
 
         logger.info(text_to_print)
 
