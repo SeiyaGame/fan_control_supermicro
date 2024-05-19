@@ -58,7 +58,7 @@ class CaseFanController:
 
     def check_disk_temperature_and_notify(self):
         disk_name, temperature, serial_number = self.get_highest_disk_temperature()
-        notification_disk_message = f"⚠️WARNING⚠️\n Disk '{disk_name}' reach {temperature}°C !"
+        notification_disk_message = f"⚠️WARNING⚠️\n Disk '{disk_name}' S/N: {serial_number} reach {temperature}°C !"
 
         now = datetime.now()
         time_since_last_notification = now - self.last_notification_time
