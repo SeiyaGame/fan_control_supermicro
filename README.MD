@@ -53,7 +53,7 @@ Finally, you can copy the `config.sample.py` as `config.py` and then edit the va
 After that start the service: `service fan-control start` or run the script `python3 fan_control_script.py`
 
 To see logs you can use the command `fan-control-logs` which is added when you run the script before !  
-Or you can do it manually with `tail -f -n 15 /mnt/tank/scripts/fan_control/fan_control.log`
+Or you can do it manually with `tail -f -n 15 /mnt/tank/scripts/fan_control/logs/fan_control.log`
 
 ## Usage
 

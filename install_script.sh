@@ -39,7 +39,7 @@ else
 fi
 
 if ! grep -q "alias fan-control-logs=" ~/.bashrc; then
-    echo "alias fan-control-logs='tail -f -n 15 $SOFTWARE_DIR/fan_control.log'" >> ~/.bashrc
+    echo "alias fan-control-logs='tail -f -n 15 $SOFTWARE_DIR/logs/fan_control.log'" >> ~/.bashrc
     echo "Command 'fan-control-logs' added to view logs."
     echo "Please source ~/.bashrc manually for the fan-control-logs alias to become effective immediately."
 else
