@@ -61,7 +61,7 @@ class CaseFanController:
         time_since_last_notification = now - self.last_notification_time
 
         disk_reach_high_temp = [disk for disk in self.disk_info if disk[1] >= NOTIFICATION_DISK_REACH_HIGH_TEMPERATURE]
-        disk_reach_low_temp = [disk for disk in self.disk_info if disk[1] >= NOTIFICATION_DISK_REACH_LOW_TEMPERATURE]
+        disk_reach_low_temp = [disk for disk in self.disk_info if disk[1] <= NOTIFICATION_DISK_REACH_LOW_TEMPERATURE]
         disk_reach_temp = disk_reach_high_temp + disk_reach_low_temp
 
         notification_disk_message = f"⚠️WARNING⚠️ | {len(disk_reach_temp)} disk reach temperature limit (↑{NOTIFICATION_DISK_REACH_HIGH_TEMPERATURE}°C | ↓{NOTIFICATION_DISK_REACH_LOW_TEMPERATURE}°C) !"
