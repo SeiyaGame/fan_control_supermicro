@@ -12,7 +12,9 @@ from datetime import datetime, timedelta
 from logger import Logger
 
 BASE_DIR = pathlib.Path(__file__).parent
+LOG_DIR = os.path.join(BASE_DIR, "logs")
 config_file = os.path.join(BASE_DIR, "config.py")
+
 if os.path.exists(config_file):
     from config import *
 else:
@@ -216,10 +218,14 @@ def main():
         only_alert = args.only_alert
         no_console_log_stream = args.no_console_log_stream
 
+        log_file = os.path.join(LOG_DIR, 'fan_control.log')
+        if not os.path.exists(LOG_DIR):
+            os.makedirs(LOG_DIR)
+
         if only_alert:
-            logger = Logger("fan_control", "INFO")
+            logger = Logger("fan_control", "INFO", log_file=log_file)
         else:
-            logger = Logger("fan_control", "INFO", webhook_url=webhook_url)
+            logger = Logger("fan_control", "INFO", webhook_url=webhook_url, log_file=log_file)
 
         logger.setup()
 
