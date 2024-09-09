@@ -28,6 +28,8 @@ cpu_fan_speed_grid = {
 WEBHOOK_URL = ""
 
 # Send a webhook notification when DISK reach a certain temperature
-NOTIFICATION_DISK_REACH_TEMPERATURE = 40
+NOTIFICATION_DISK_REACH_HIGH_TEMPERATURE = 40
+NOTIFICATION_DISK_REACH_LOW_TEMPERATURE = 10
+
 # Send a webhook notification at least every X minutes if temperature is reach
 NOTIFICATION_SEND_EVERY_MINUTE = 5
