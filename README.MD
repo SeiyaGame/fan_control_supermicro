@@ -31,8 +31,7 @@ This Python script is designed to automatically control the fan speeds of a serv
 ## Installation
 
 > [!WARNING]
-> Tested only on H11SSL-i/c/nc motherboard
-> I need your feedback/help for the others !
+> Tested only on H11SSL-i/c/nc motherboard. I need your feedback/help for the others !
 
 Ensure Python 3.x is installed on your server.  
 Install ipmitool on your server or ensure it's already installed ( Debian default path : `/usr/bin/ipmitool`)  
