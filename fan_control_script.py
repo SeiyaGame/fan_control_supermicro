@@ -161,11 +161,11 @@ class CaseFanController:
 
     def loop(self):
 
-        logger.info("Fan mode set to FULL")
-        if not self.dry_run:
-            self.ipmitool.set_fan_mode("full")
-
         try:
+            logger.info("Fan mode set to FULL")
+            if not self.dry_run:
+                self.ipmitool.set_fan_mode("full")
+
             while True:
 
                 # Get current fan speeds
@@ -198,6 +198,10 @@ class CaseFanController:
 
         except KeyboardInterrupt:
             return
+
+        except Exception:
+            logger.error(traceback.format_exc())
+            self.ipmitool.set_fan_mode("standard")
 
 
 def parser_setup():
