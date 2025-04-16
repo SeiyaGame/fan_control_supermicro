@@ -108,15 +108,31 @@ class CaseFanController:
                     else:
                         logger.warning(f"The zone {zone} doesn't exist or is not implemented yet!")
 
+        candidates = []
+        all_values = []
         for temp_grid, fan_speed_percent_grid in fan_speed_grid.items():
+            all_values.append(fan_speed_percent_grid)
             if isinstance(temp_grid, tuple):
                 if temp_grid[0] <= temperature <= temp_grid[1]:
                     update_fan_speed(temp_grid, fan_speed_percent_grid)
                     return
+                elif temperature < temp_grid[1]:
+                    candidates.append((temp_grid[1], fan_speed_percent_grid))  # store upper bound of range
             elif isinstance(temp_grid, int):
                 if temperature == temp_grid:
                     update_fan_speed(temp_grid, fan_speed_percent_grid)
                     return
+                elif temperature < temp_grid:
+                    candidates.append((temp_grid, fan_speed_percent_grid))  # store int key
+
+        if candidates:
+            candidate = min(candidates, key=lambda item: item[0])  # get nearest higher value
+            update_fan_speed(candidate[0], candidate[1])
+            return
+
+        if all_values:  # fallback on highest value
+            update_fan_speed(temperature, max(all_values))
+            return
 
     def set_peripheral_fan_speed_by_temperature(self, temperature):
         self.set_fan_speed_by_temperature('peripheral', temperature, self.disk_fan_speed_grid)
