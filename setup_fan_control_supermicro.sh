@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SOFTWARE_DIR=$(dirname "$0")
+SOFTWARE_DIR="$PWD"
 SYSTEMD_SERVICE="/etc/systemd/system/fan-control.service"
 
 if [[ ! -e "$SYSTEMD_SERVICE" ]]; then

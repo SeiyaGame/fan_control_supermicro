@@ -94,7 +94,7 @@ Then go the Truenas scale web interface in `System Settings` -> `Advanced` -> `I
 
 - Description: `Script to control fan speed`
 - Type: `Script`
-- Script: `/mnt/tank/scripts/fan_control/setup_fan_control_supermicro.sh`
+- Script: `cd /mnt/tank/scripts/fan_control && chmod +x setup_fan_control_supermicro.sh && ./setup_fan_control_supermicro.sh`
 - When: `Post Init`
 - Enable: `Yes`
 
