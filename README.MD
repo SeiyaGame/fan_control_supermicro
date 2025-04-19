@@ -93,8 +93,8 @@ Follow the step [here](#installation) but install the script in a dataset of you
 Then go the Truenas scale web interface in `System Settings` -> `Advanced` -> `Init/Shutdown Scripts` and click `Add`
 
 - Description: `Script to control fan speed`
-- Type: `Script`
-- Script: `/mnt/tank/scripts/fan_control/setup_fan_control_supermicro.sh`
+- Type: `Command`
+- Script: `cd /mnt/tank/scripts/fan_control && chmod +x setup_fan_control_supermicro.sh && ./setup_fan_control_supermicro.sh`
 - When: `Post Init`
 - Enable: `Yes`
 
