@@ -40,21 +40,3 @@ class CPUMonitor:
                         if temp_info.label.startswith(("Tctl", "Package id")):
                             return int(float(temp_info.current))
         return -1
-
-
-if __name__ == "__main__":
-
-    import time
-
-    cpu_monitor = CPUMonitor()
-
-    while True:
-        try:
-            start_time = time.time()  # Enregistrez le temps de début
-            print(cpu_monitor.get_cpu_temperature())
-            end_time = time.time()  # Enregistrez le temps de fin
-            elapsed_time = end_time - start_time  # Calculez le temps écoulé
-            print(f"Temps écoulé pour get_cpu_temperature(): {elapsed_time} secondes")
-            time.sleep(1)
-        except KeyboardInterrupt:
-            break
