@@ -94,9 +94,13 @@ class CaseFanController:
                 fan_speed_status = f"Set fan speed for the {zone} zone to {fan_speed_percent_grid}% ({hex(fan_speed_percent_grid)}) "
 
                 if isinstance(temp_grid, int):
-                    fan_speed_status += f"(Temperature reach: {temp_grid})"
+                    label = "Temperature reach" if temp_grid == temperature else "Fallback to"
+                    fan_speed_status += f"({label}: {temp_grid})"
+
                 elif isinstance(temp_grid, tuple):
-                    fan_speed_status += f"(Temperature range: {temp_grid[0]} → {temp_grid[1]})"
+                    in_range = temp_grid[0] <= temperature <= temp_grid[1]
+                    label = "Temperature range" if in_range else "Fallback range"
+                    fan_speed_status += f"({label}: {temp_grid[0]} → {temp_grid[1]})"
 
                 logger.info(fan_speed_status)
 
@@ -108,15 +112,27 @@ class CaseFanController:
                     else:
                         logger.warning(f"The zone {zone} doesn't exist or is not implemented yet!")
 
+        # Fist Attempt
         for temp_grid, fan_speed_percent_grid in fan_speed_grid.items():
-            if isinstance(temp_grid, tuple):
-                if temp_grid[0] <= temperature <= temp_grid[1]:
-                    update_fan_speed(temp_grid, fan_speed_percent_grid)
-                    return
-            elif isinstance(temp_grid, int):
-                if temperature == temp_grid:
-                    update_fan_speed(temp_grid, fan_speed_percent_grid)
-                    return
+            if isinstance(temp_grid, tuple) and temp_grid[0] <= temperature <= temp_grid[1]:
+                update_fan_speed(temp_grid, fan_speed_percent_grid) ; return
+            elif isinstance(temp_grid, int) and temperature == temp_grid:
+                update_fan_speed(temp_grid, fan_speed_percent_grid) ; return
+
+        # Fallback to Lower value
+        last_temp, last_fan_speed = None, None
+        for temp_grid, fan_speed_percent_grid in fan_speed_grid.items():
+            if isinstance(temp_grid, tuple) and temp_grid[1] < temperature:
+                last_temp, last_fan_speed = temp_grid, fan_speed_percent_grid
+            elif isinstance(temp_grid, int) and temp_grid < temperature:
+                last_temp, last_fan_speed = temp_grid, fan_speed_percent_grid
+
+        if last_temp and last_fan_speed:
+            update_fan_speed(last_temp, last_fan_speed) ; return
+
+        # Unexpected value, set fan speed to the maximum
+        logger.warning(f"No fallback rules found for {zone} at {temperature}°C")
+        update_fan_speed(temperature, 100)
 
     def set_peripheral_fan_speed_by_temperature(self, temperature):
         self.set_fan_speed_by_temperature('peripheral', temperature, self.disk_fan_speed_grid)

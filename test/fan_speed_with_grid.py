@@ -1,22 +1,13 @@
 # Fan speed control grid based on hard drive temperatures
 disk_fan_speed_grid = {
-    (0, 24): 0,
-    25: 13,
-    35: 18,
-    40: 30,
-    45: 35,
-    50: 50,
-    60: 100
-}
-
-disk_fan_speed_grid_not_order = {
-    25: 13,
-    60: 100,
-    45: 35,
-    35: 18,
-    40: 30,
-    50: 50,
-    (0, 24): 0
+    (0, 23): 40,
+    (25, 30): 50,
+    (32, 34): 60,
+    35: 65,
+    37: 75,
+    (38, 40): 80,
+    (42, 45): 90,
+    (46, 60): 100,
 }
 
 # Fan speed control grid based on CPU temperatures
@@ -58,25 +49,32 @@ cpu_fan_speed_grid = {
 # }
 
 self_current_fan_speed = dict()
-self_dry_run = True
+self_dry_run = False
 
 def set_fan_speed_by_temperature(zone, temperature, fan_speed_grid):
     current_temp_range, current_fan_speed = self_current_fan_speed.get(zone, ((-1, -1), None))
+    # current_temp_range, current_fan_speed = self.current_fan_speed.get(zone, ((-1, -1), None))
 
     def update_fan_speed(temp_grid, fan_speed_percent_grid):
         if current_fan_speed is None or current_fan_speed != fan_speed_percent_grid:
             self_current_fan_speed[zone] = temp_grid, fan_speed_percent_grid
+            # self.current_fan_speed[zone] = temp_grid, fan_speed_percent_grid
 
             fan_speed_status = f"Set fan speed for the {zone} zone to {fan_speed_percent_grid}% ({hex(fan_speed_percent_grid)}) "
 
             if isinstance(temp_grid, int):
-                fan_speed_status += f"(Temperature reach: {temp_grid})"
+                label = "Temperature reach" if temp_grid == temperature else "Fallback to"
+                fan_speed_status += f"({label}: {temp_grid})"
+
             elif isinstance(temp_grid, tuple):
-                fan_speed_status += f"(Temperature range: {temp_grid[0]} → {temp_grid[1]})"
+                in_range = temp_grid[0] <= temperature <= temp_grid[1]
+                label = "Temperature range" if in_range else "Fallback range"
+                fan_speed_status += f"({label}: {temp_grid[0]} → {temp_grid[1]})"
 
             print(fan_speed_status)
             # logger.info(fan_speed_status)
 
+            # if not self.dry_run:
             if not self_dry_run:
                 if zone == 'cpu':
                     print(f"self.ipmitool.set_fan_speed(0, {fan_speed_percent_grid})")
@@ -88,20 +86,39 @@ def set_fan_speed_by_temperature(zone, temperature, fan_speed_grid):
                     print(f"The zone {zone} doesn't exist or is not implemented yet!")
                     # logger.warning(f"The zone {zone} doesn't exist or is not implemented yet!")
 
+    # Fist Attempt
     for temp_grid, fan_speed_percent_grid in fan_speed_grid.items():
-        if isinstance(temp_grid, tuple):
-            if temp_grid[0] <= temperature <= temp_grid[1]:
-                update_fan_speed(temp_grid, fan_speed_percent_grid)
-                return
-        elif isinstance(temp_grid, int):
-            if temperature == temp_grid:
-                update_fan_speed(temp_grid, fan_speed_percent_grid)
-                return
+        if isinstance(temp_grid, tuple) and temp_grid[0] <= temperature <= temp_grid[1]:
+            update_fan_speed(temp_grid, fan_speed_percent_grid) ; return
+        elif isinstance(temp_grid, int) and temperature == temp_grid:
+            update_fan_speed(temp_grid, fan_speed_percent_grid) ; return
+
+    # Fallback to Lower value
+    last_temp, last_fan_speed = None, None
+    for temp_grid, fan_speed_percent_grid in fan_speed_grid.items():
+        if isinstance(temp_grid, tuple) and temp_grid[1] < temperature:
+            last_temp, last_fan_speed = temp_grid, fan_speed_percent_grid
+        elif isinstance(temp_grid, int) and temp_grid < temperature:
+            last_temp, last_fan_speed = temp_grid, fan_speed_percent_grid
+
+    if last_temp and last_fan_speed:
+        update_fan_speed(last_temp, last_fan_speed) ; return
+
+    # Unexpected value, set fan speed to the maximum
+    print(f"No fallback rules found for {zone} at {temperature}°C")
+    # logger.warning(f"No fallback rules found for {zone} at {temperature}°C")
+    update_fan_speed(temperature, 100)
 
 
 if __name__ == '__main__':
-    print('Test set_fan_speed_by_temperature for peripheral:')
-    set_fan_speed_by_temperature("peripheral", 35, disk_fan_speed_grid)
 
-    print('Test set_fan_speed_by_temperature for CPU:')
-    set_fan_speed_by_temperature("cpu", 35, disk_fan_speed_grid)
+    for temp in [18, 24, 32, 35, 36, 101, -5]:
+
+        # Reset dict to ignore last set value
+        self_current_fan_speed = dict()
+
+        print(f'\nTest set_fan_speed_by_temperature for peripheral with {temp}°C :')
+        set_fan_speed_by_temperature("peripheral", temp, disk_fan_speed_grid)
+
+        print(f'\nTest set_fan_speed_by_temperature for CPU with {temp}°C :')
+        set_fan_speed_by_temperature("cpu", temp, cpu_fan_speed_grid)
