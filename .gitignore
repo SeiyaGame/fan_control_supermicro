@@ -106,8 +106,10 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+lib/*
+!lib/prometheus_client/
+!lib/prometheus_client/**
+lib64/*
 parts/
 sdist/
 var/
@@ -261,7 +263,6 @@ poetry.toml
 # LSP config files
 pyrightconfig.json
 
-test.py
 config.py
 
 # End of https://www.toptal.com/developers/gitignore/api/pycharm+all,python
