@@ -5,7 +5,9 @@ class ConfigValidator:
         "CPU_FAN_SPEED_GRID",
         "NOTIFICATION_DISK_REACH_HIGH_TEMPERATURE",
         "NOTIFICATION_DISK_REACH_LOW_TEMPERATURE",
-        "NOTIFICATION_SEND_EVERY_MINUTE"
+        "NOTIFICATION_SEND_EVERY_MINUTE",
+        "PROMETHEUS_ENABLE",
+        "PROMETHEUS_PORT",
     ]
 
     def __init__(self):
@@ -17,6 +19,7 @@ class ConfigValidator:
         self.validate_webhook()
         self.validate_temp_thresholds()
         self.validate_fan_grids()
+        self.validate_prometheus_exporter()
         print("✅ Configuration is valid ✅")
 
     def check_required_vars(self):
@@ -29,6 +32,14 @@ class ConfigValidator:
         assert (
             value is None or (isinstance(value, str) and value.startswith("http"))
         ), "WEBHOOK_URL must be a valid URL or set to None if not used !"
+
+    def validate_prometheus_exporter(self):
+        value = self.config.PROMETHEUS_PORT
+        assert (
+            value is None or (isinstance(value, int) and 0 <= value <= 65535)
+        ), "PROMETHEUS_PORT must be between 0 and 65535 or set to None if not used !"
+
+        assert isinstance(self.config.PROMETHEUS_ENABLE, bool), "PROMETHEUS_ENABLE must be set to True or False if not used !"
 
     def validate_temp_thresholds(self):
         assert isinstance(self.config.NOTIFICATION_DISK_REACH_HIGH_TEMPERATURE, int), "NOTIFICATION_DISK_REACH_HIGH_TEMPERATURE must be an int"
