@@ -241,7 +241,7 @@ def main():
         cpu_monitor = CPUMonitor()
 
         case_fan_controller = CaseFanController(ipmitool, disk_monitor, cpu_monitor,
-                                                disk_fan_speed_grid, cpu_fan_speed_grid)
+                                                DISK_FAN_SPEED_GRID, CPU_FAN_SPEED_GRID)
 
         case_fan_controller.set_dry_run(dry_run)
 

@@ -1,5 +1,5 @@
 # Fan speed control grid based on hard drive temperatures
-disk_fan_speed_grid = {
+DISK_FAN_SPEED_GRID = {
     (0, 27): 40,  # Temperature from 0°C to 30°C: 40%
     (28, 30): 50,  # Temperature from 28°C to 30°C: 50%
     (31, 34): 60,  # Temperature from 31°C to 34°C: 60%
@@ -12,7 +12,7 @@ disk_fan_speed_grid = {
 }
 
 # Fan speed control grid based on CPU temperatures
-cpu_fan_speed_grid = {
+CPU_FAN_SPEED_GRID = {
     (0, 25): 30,  # Temperature from 0°C to 25°C: 30%
     (26, 34): 45,  # Temperature from 26°C to 34°C: 45%
     (35, 40): 55,  # Temperature from 35°C to 40°C: 55%
@@ -25,7 +25,7 @@ cpu_fan_speed_grid = {
 }
 
 # If you want to send log to a webhook, put the URL here !
-WEBHOOK_URL = ""
+WEBHOOK_URL = None
 
 # Send a webhook notification when DISK reach a certain temperature
 NOTIFICATION_DISK_REACH_HIGH_TEMPERATURE = 40
