@@ -33,3 +33,8 @@ NOTIFICATION_DISK_REACH_LOW_TEMPERATURE = 10
 
 # Send a webhook notification at least every X minutes if temperature is reach
 NOTIFICATION_SEND_EVERY_MINUTE = 5
+
+# Enable prometheus metrics
+PROMETHEUS_ENABLE = False
+# Http port for prometheus metrics
+PROMETHEUS_PORT = None

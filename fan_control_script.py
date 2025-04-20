@@ -230,6 +230,7 @@ def parser_setup():
     parser.add_argument('--no_console_log_stream', action='store_true', default=False, help='Disable Stream log in console')
     parser.add_argument('--webhook_url', type=str, default=None, help='Send message to a webhook url')
     parser.add_argument('--only_alert', action='store_true', default=True, help='Send only alert message to the webhook url')
+    parser.add_argument('--prometheus_enable', action='store_true', help='Enable Prometheus exporter')
     parser.add_argument('--prometheus_port', type=int, default=9495, help='Listening port for Prometheus exporter')
 
     return parser.parse_args()
@@ -242,8 +243,8 @@ def main():
         webhook_url = args.webhook_url or WEBHOOK_URL
         only_alert = args.only_alert
         no_console_log_stream = args.no_console_log_stream
-        prometheus_enable = args.prometheus_enable
-        prometheus_port = args.prometheus_port
+        prometheus_enable = args.prometheus_enable or PROMETHEUS_ENABLE
+        prometheus_port = args.prometheus_port or PROMETHEUS_PORT
 
         ConfigValidator().validate()
 
