@@ -36,5 +36,5 @@ NOTIFICATION_SEND_EVERY_MINUTE = 5
 
 # Enable prometheus metrics
 PROMETHEUS_ENABLE = False
-# Http port for prometheus metrics
-PROMETHEUS_PORT = None
+# Http port for prometheus metrics Default: 9495
+PROMETHEUS_PORT = 9495

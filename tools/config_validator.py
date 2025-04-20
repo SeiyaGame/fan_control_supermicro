@@ -36,8 +36,8 @@ class ConfigValidator:
     def validate_prometheus_exporter(self):
         value = self.config.PROMETHEUS_PORT
         assert (
-            value is None or (isinstance(value, int) and 0 <= value <= 65535)
-        ), "PROMETHEUS_PORT must be between 0 and 65535 or set to None if not used !"
+            isinstance(value, int) and 1024 <= value <= 65535
+        ), "PROMETHEUS_PORT must be between 1024 and 65535"
 
         assert isinstance(self.config.PROMETHEUS_ENABLE, bool), "PROMETHEUS_ENABLE must be set to True or False if not used !"
 
