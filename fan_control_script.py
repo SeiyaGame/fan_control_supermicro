@@ -8,6 +8,7 @@ import requests
 from tools.ipmitool import Ipmitool
 from tools.disk_monitor import DiskMonitor
 from tools.cpu_monitor import CPUMonitor
+from tools.config_validator import ConfigValidator
 from datetime import datetime, timedelta
 from logger import Logger
 
@@ -238,6 +239,8 @@ def main():
         only_alert = args.only_alert
         no_console_log_stream = args.no_console_log_stream
 
+        ConfigValidator().validate()
+
         log_file = os.path.join(LOG_DIR, 'fan_control.log')
         if not os.path.exists(LOG_DIR):
             os.makedirs(LOG_DIR)
@@ -257,7 +260,7 @@ def main():
         cpu_monitor = CPUMonitor()
 
         case_fan_controller = CaseFanController(ipmitool, disk_monitor, cpu_monitor,
-                                                disk_fan_speed_grid, cpu_fan_speed_grid)
+                                                DISK_FAN_SPEED_GRID, CPU_FAN_SPEED_GRID)
 
         case_fan_controller.set_dry_run(dry_run)
 
