@@ -1,4 +1,6 @@
-import time
+import os, sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "lib")))
+
 from prometheus_client import start_http_server, Gauge
 
 DISK_TEMPERATURE = Gauge(
