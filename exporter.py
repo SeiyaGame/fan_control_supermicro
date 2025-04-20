@@ -3,25 +3,27 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "lib")))
 
 from prometheus_client import start_http_server, Gauge
 
+DEFAULT_PREFIX = "fan_control_supermicro"
+
 DISK_TEMPERATURE = Gauge(
-    name="disk_temperature",
+    name=f"{DEFAULT_PREFIX}_disk_temperature",
     documentation="Temperature of disk",
     labelnames=['name', 'serial_number']
 )
 
 CPU_TEMPERATURE = Gauge(
-    name="cpu_temperature",
+    name=f"{DEFAULT_PREFIX}_cpu_temperature",
     documentation="Temperature of CPU",
 )
 
 IPMI_FAN_SPEED = Gauge(
-    name="ipmi_fan_speed",
+    name=f"{DEFAULT_PREFIX}_ipmi_fan_speed",
     documentation="Ipmi fan speed recovery",
     labelnames=['name']
 )
 
 FAN_SPEED_BY_ZONE = Gauge(
-    name="fan_speed_by_zone",
+    name=f"{DEFAULT_PREFIX}_fan_speed_by_zone",
     documentation="Fan speed for the current zone in percent",
     labelnames=['zone'],
 )
