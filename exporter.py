@@ -29,7 +29,9 @@ FAN_SPEED_BY_ZONE = Gauge(
 )
 
 
-def fetch(disk_info, fan_speed, current_fan_speed):
+def fetch(cpu_temperature, disk_info, fan_speed, current_fan_speed):
+    CPU_TEMPERATURE.set(cpu_temperature)
+
     for name, temperature, serial_number in disk_info:
         DISK_TEMPERATURE.labels(name=name, serial_number=serial_number).set(temperature)
 

@@ -15,6 +15,7 @@ if __name__ == "__main__":
         try:
 
             exporter.fetch(
+                cpu_temperature = 52,
                 disk_info= [
                     ('sda', 31, 'K4X9R2TQ'), ('sdb', 26, 'Q1Z3M8VW'), ('sdc', 31, 'B7F5X2L9J0H3'), ('sdd', 34, 'T6G1K7M3V2Z9'),
                     ('sde', 33, 'M3P9H4ND'), ('sdf', 35, 'V7X1Q2LB'), ('sdg', 29, 'L5N3Z8AW'), ('sdh', 33, 'Y2W4K6MS'),

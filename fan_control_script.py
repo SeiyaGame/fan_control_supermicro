@@ -209,7 +209,7 @@ class CaseFanController:
 
                 self.print_info()
 
-                exporter.fetch(self.disk_info, self.ipmi_fan_speed, self.current_fan_speed)
+                exporter.fetch(self.cpu_temperature, self.disk_info, self.ipmi_fan_speed, self.current_fan_speed)
 
                 if self.dry_run:
                     logger.info("Dry Run Mode - No changes made.\n")
