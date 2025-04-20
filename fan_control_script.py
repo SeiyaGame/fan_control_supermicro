@@ -8,6 +8,7 @@ import requests
 from tools.ipmitool import Ipmitool
 from tools.disk_monitor import DiskMonitor
 from tools.cpu_monitor import CPUMonitor
+from tools.config_validator import ConfigValidator
 from datetime import datetime, timedelta
 from logger import Logger
 
@@ -221,6 +222,8 @@ def main():
         webhook_url = args.webhook_url or WEBHOOK_URL
         only_alert = args.only_alert
         no_console_log_stream = args.no_console_log_stream
+
+        ConfigValidator().validate()
 
         log_file = os.path.join(LOG_DIR, 'fan_control.log')
         if not os.path.exists(LOG_DIR):
