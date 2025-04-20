@@ -14,19 +14,19 @@ This Python script is designed to automatically control the fan speeds of a serv
 - Customizable temperature thresholds for different fan speeds.
 - Supports different zones (CPU and peripheral) for targeted cooling.
 - Dry run mode for testing without applying changes.
-- Continuous monitoring with adjustable loop sleep time.
+- Metrics (Prometheus Exporter).
 
 ## TODO
 
 - [x] Setting up logs
 - [ ] Create a web interface to display temperature data ??
-- [ ] Setup a Prometheus exporter??
+- [x] Setting up Prometheus exporter
 - [ ] Restrict this script to only works on DEBIAN and TrueNAS SCALE
 
 ## Requirements
 
 - Python 3.x
-- Access to IPMI on the server.
+- Access to IPMI on the server. (`/usr/bin/ipmitool`)
 
 ## Installation
 
@@ -60,10 +60,30 @@ Or you can do it manually with `tail -f -n 15 /mnt/tank/scripts/fan_control/logs
 
 ## Usage
 
-1. Configure the fan speed grids (**disk_fan_speed_grid** and **cpu_fan_speed_grid**) as per your requirements.
+1. Configure the fan speed grids (**DISK_FAN_SPEED_GRID** and **CPU_FAN_SPEED_GRID**) as per your requirements.
 2. Run the script: `python3 fan_control_script.py`
 3. Optionally, enable dry run mode by adding `-d` or `--dry_run` to test without applying changes.
 4. Optionally, you can send logs message to a webhook url by editing variables in the file `config.py` or by adding `--webhook_url 'YOUR_URL'`
+5. Optionally, you can enable metrics (Prometheus Exporter) in the file `config.py` or by adding `--prometheus_enable`. Default port is `9495`
+
+```bash
+usage: fan_control_script.py [-h] [-d] [--no_console_log_stream] [--webhook_url WEBHOOK_URL] [--only_alert] [--prometheus_enable] [--prometheus_port PROMETHEUS_PORT]
+
+Control fan speed via IPMI of Supermicro motherboard
+
+options:
+  -h, --help            show this help message and exit
+  -d, --dry_run         No changes made, only to visualised
+  --no_console_log_stream
+                        Disable Stream log in console
+  --webhook_url WEBHOOK_URL
+                        Send message to a webhook url
+  --only_alert          Send only alert message to the webhook url (Default: True)
+  --prometheus_enable   Enable Prometheus exporter (Default: False)
+  --prometheus_port PROMETHEUS_PORT (Default: 9495)
+                        Listening port for Prometheus exporter
+```
+
 
 ### Output in your console
 
@@ -82,11 +102,6 @@ FAN1(700 RPM) | FAN2(700 RPM) | FAN3(700 RPM) | FAN4 | FAN5(700 RPM) | FANA(1000
   sdj   - 34°C - S/N: 5PH7NZEE     |   sdk   - 35°C - S/N: 5PH7J96F     | nvme0n1 - 48°C - S/N: 21337W443408
 ```
 
-## Configuration
-
-- Fan Speed Grids: Adjust the temperature ranges and corresponding fan speeds in the script.
-- Loop Sleep Time: Set the time interval between each monitoring loop.
-
 ## Truenas Scale Setup
 
 Follow the step [here](#installation) but install the script in a dataset of your pool for exemple in `/mnt/tank/scripts/fan_control`  
@@ -101,7 +116,7 @@ Then go the Truenas scale web interface in `System Settings` -> `Advanced` -> `I
 ## Limitations
 
 - Currently, supports only Debian-based systems and TrueNAS Scale. (planned to restrict)
-- Does not include a web interface or Prometheus exporter (planned for future updates).
+- Does not include a web interface
 
 ## Contributing
 
