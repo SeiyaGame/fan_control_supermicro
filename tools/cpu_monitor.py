@@ -24,9 +24,9 @@ class CPUMonitor:
             vendor_name = RE_CPU_VENDOR.search(f.read())
             vendor_name = vendor_name.group(1) if vendor_name else None
 
-        if "AMD" in vendor_name:
+        if "amd" in vendor_name.casefold():
             return "AMD"
-        elif "INTEL" in vendor_name:
+        elif "intel" in vendor_name.casefold():
             return "INTEL"
 
         return vendor_name
