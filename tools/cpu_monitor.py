@@ -32,11 +32,21 @@ class CPUMonitor:
         return vendor_name
 
     def get_cpu_temperature(self):
-        temperature_data = psutil.sensors_temperatures()
-        if temperature_data:
-            for sensor_name, sensor_info in temperature_data.items():
-                if sensor_name.startswith(self.sensor_module):
-                    for temp_info in sensor_info:
-                        if temp_info.label.startswith(("Tctl", "Package id")):
-                            return int(float(temp_info.current))
+        temps = psutil.sensors_temperatures().get(self.sensor_module, [])
+
+        # No CPU temp found
+        if not temps:
+            return -1
+
+        # Tctl or Package id (AMD / Intel)
+        for sensor in temps:
+            if sensor.label.startswith(("Tctl", "Package id")):
+                return int(sensor.current)
+
+        # Sum of all cores in case Tctl or Package id not exist (AMD / Intel)
+        core_temps = [s.current for s in temps if s.label.startswith(("Core", "Tccd"))]
+        if core_temps:
+            return int(sum(core_temps) / len(core_temps))
+
+        # Nothing match but temperature found
         return -1
