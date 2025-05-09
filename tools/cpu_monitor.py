@@ -1,5 +1,6 @@
 import re
 import psutil
+import io
 
 RE_CPU_MODEL = re.compile(r'^model name\s*:\s*(.*)', flags=re.M)
 RE_CPU_VENDOR = re.compile(r'^vendor_id\s*:\s*(.*)', flags=re.M)
@@ -8,21 +9,23 @@ RE_CPU_VENDOR = re.compile(r'^vendor_id\s*:\s*(.*)', flags=re.M)
 class CPUMonitor:
 
     def __init__(self):
-        self.vendor = self.get_cpu_vendor()
-        self.cpu_model = self.get_cpu_model_name()
+        self.cpuinfo = self._read_cpuinfo()
+        self.vendor = self._parse_cpu_vendor()
+        self.cpu_model = self._parse_cpu_model_name()
         self.sensor_module = "coretemp" if "INTEL" in self.vendor else "k10temp"
 
     @staticmethod
-    def get_cpu_model_name():
-        with open('/proc/cpuinfo', 'r') as f:
-            model = RE_CPU_MODEL.search(f.read())
-            return model.group(1) if model else None
+    def _read_cpuinfo():
+        with io.open('/proc/cpuinfo', 'r') as f:
+            return f.read()
 
-    @staticmethod
-    def get_cpu_vendor():
-        with open('/proc/cpuinfo', 'r') as f:
-            vendor_name = RE_CPU_VENDOR.search(f.read())
-            vendor_name = vendor_name.group(1) if vendor_name else None
+    def _parse_cpu_model_name(self):
+        model = RE_CPU_MODEL.search(self.cpuinfo)
+        return model.group(1) if model else None
+
+    def _parse_cpu_vendor(self):
+        vendor_name = RE_CPU_VENDOR.search(self.cpuinfo)
+        vendor_name = vendor_name.group(1) if vendor_name else None
 
         if "amd" in vendor_name.casefold():
             return "AMD"
