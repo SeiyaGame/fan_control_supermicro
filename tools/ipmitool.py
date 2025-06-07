@@ -135,22 +135,3 @@ class Ipmitool:
         else:
             logger.warning("Unsupported BMC reset type")
             return False
-
-
-if __name__ == "__main__":
-    import time
-
-    ipmi = Ipmitool()
-    # ipmi.set_fan_mode("full")
-    # ipmi.reset_bmc()
-
-    while True:
-        try:
-            start_time = time.time()  # Enregistrez le temps de début
-            print(ipmi.get_fan_speed_bis())
-            end_time = time.time()  # Enregistrez le temps de fin
-            elapsed_time = end_time - start_time  # Calculez le temps écoulé
-            print(f"Temps écoulé pour get_fan_speed_bis(): {elapsed_time} secondes")
-            time.sleep(1)
-        except KeyboardInterrupt:
-            break

@@ -97,36 +97,14 @@ class DiskMonitor:
 
         def fetch_disk_info(disk_name):
             smartctl_output = self.get_disk_smartctl(disk_name)
-            if smartctl_output:
-                temperature = self.get_disk_temperature(smartctl_output)
-                serial_number = self.get_disk_serial_number(smartctl_output)
-                return disk_name, temperature, serial_number
-            else:
+            if not smartctl_output:
                 return None
 
-        # Utilisez ThreadPoolExecutor pour exécuter les appels get_disk_smartctl en parallèle
+            temperature = self.get_disk_temperature(smartctl_output)
+            serial_number = self.get_disk_serial_number(smartctl_output)
+            return disk_name, temperature, serial_number
+
         with concurrent.futures.ThreadPoolExecutor() as executor:
             results = list(executor.map(fetch_disk_info, disk_names))
 
-        # Filtrer les résultats None (en cas d'erreur)
-        disk_info = [result for result in results if result is not None]
-
-        return disk_info
-
-
-if __name__ == "__main__":
-
-    import time
-
-    disk_monitor = DiskMonitor()
-
-    while True:
-        try:
-            start_time = time.time()  # Enregistrez le temps de début
-            print(disk_monitor.get_disk_info())
-            end_time = time.time()  # Enregistrez le temps de fin
-            elapsed_time = end_time - start_time  # Calculez le temps écoulé
-            print(f"Temps écoulé pour get_disk_info(): {elapsed_time} secondes")
-            time.sleep(1)
-        except KeyboardInterrupt:
-            break
+        return [result for result in results if result is not None]
