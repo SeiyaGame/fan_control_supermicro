@@ -1,7 +1,7 @@
 # Fan Control Script for Supermicro
 
-> [!INFO]
-> This project has been archived; please move on to the new one: [fanwarden](https://github.com/SeiyaGame/fanwarden)
+> [!NOTE] 
+> This project has been archived; please move on to the new one: [fanwarden](https://github.com/SeiyaGame/fanwarden) 
 
 ## Resources
 
