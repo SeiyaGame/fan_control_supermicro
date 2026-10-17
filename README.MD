@@ -1,5 +1,8 @@
 # Fan Control Script for Supermicro
 
+> [!INFO]
+> This project has been archived; please move on to the new one: [fanwarden](https://github.com/SeiyaGame/fanwarden)
+
 ## Resources
 
 - [Supermicro X9/X10/X11 Fan Speed Control](https://forums.servethehome.com/index.php?resources/supermicro-x9-x10-x11-fan-speed-control.20/)
